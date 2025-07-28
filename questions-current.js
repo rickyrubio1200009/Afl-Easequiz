@@ -1,4 +1,4 @@
 const questions = [
-  { question: "Who wears number 9 for Melbourne?", answer: "Christian Petracca" },
-  { question: "What year did Nick Daicos debut?", answer: "2022" }
+  { question: "Who won the 2023 AFL Grand Final?", answer: "Collingwood" },
+  { question: "Which team finished last in 2023?", answer: "West Coast" }
 ];
