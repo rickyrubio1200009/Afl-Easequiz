@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Choose a Club</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>Select an AFL Club</h1>
+  <div id="clubs"></div>
+  <script>
+    const clubs = ["Adelaide", "Brisbane", "Carlton", "Collingwood", "Essendon"];
+    const container = document.getElementById("clubs");
+    clubs.forEach(club => {
+      const button = document.createElement("button");
+      button.textContent = club;
+      button.onclick = () => window.location.href = `quiz.html?mode=clubs/${club.toLowerCase()}`;
+      container.appendChild(button);
+    });
+  </script>
+</body>
+</html>
