@@ -1,7 +1,7 @@
 let questions = [];
+let currentQuestion = 0;
 let score = 0;
 let timer;
-let currentIndex = 0;
 let timeLeft = 15;
 
 const queryParams = new URLSearchParams(window.location.search);
@@ -25,11 +25,11 @@ function loadQuestions() {
 
   script.src = src;
   script.onload = () => {
-    questions = shuffle(questions).slice(0, 200);
-    if (questions.length === 0) {
+    if (!questions || questions.length === 0) {
       alert('No questions found for this quiz.');
       return;
     }
+    questions = shuffle(questions).slice(0, 200);
     showQuestion();
     startTimer();
   };
@@ -38,71 +38,55 @@ function loadQuestions() {
 }
 
 function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+  return array.sort(() => Math.random() - 0.5);
 }
 
 function showQuestion() {
-  if (currentIndex >= questions.length) {
-    clearInterval(timer);
-    alert('🎉 You have finished all questions! Your score: ' + score);
-    window.location.href = 'done.html';
-    return;
-  }
-  document.getElementById('question-box').innerText = questions[currentIndex].question;
-  document.getElementById('answer').value = '';
-  timeLeft = 15;
-  updateTimerDisplay();
-}
-
-function submitAnswer() {
-  const userAnswer = document.getElementById('answer').value.trim().toLowerCase();
-  const correct = questions[currentIndex].answer.toLowerCase();
-
-  if (userAnswer === correct) {
-    document.body.style.backgroundColor = 'lightgreen';
-    score++;
-    document.getElementById('score').innerText = `Score: ${score}`;
-    clearInterval(timer);
-    setTimeout(() => {
-      document.body.style.backgroundColor = '';
-      currentIndex++;
-      showQuestion();
-      startTimer();
-    }, 500);
-  } else {
-    document.body.style.backgroundColor = 'red';
-    clearInterval(timer);
-    setTimeout(() => {
-      document.body.style.backgroundColor = '';
-      alert('Wrong answer! Your score resets to 0. Try again!');
-      score = 0;
-      document.getElementById('score').innerText = `Score: ${score}`;
-      currentIndex = 0;
-      questions = shuffle(questions);
-      showQuestion();
-      startTimer();
-    }, 1000);
-  }
+  document.body.innerHTML = `
+    <h2>${questions[currentQuestion].question}</h2>
+    <input type="text" id="answer" />
+    <button onclick="submitAnswer()">Submit</button>
+    <p>Time left: <span id="timer">${timeLeft}</span>s</p>
+    <p>Score: ${score}</p>
+  `;
 }
 
 function startTimer() {
+  timeLeft = 15;
+  document.getElementById("timer").textContent = timeLeft;
+  clearInterval(timer);
   timer = setInterval(() => {
     timeLeft--;
-    updateTimerDisplay();
+    document.getElementById("timer").textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(timer);
-      alert('Time is up!');
-      submitAnswer();
+      wrongAnswer();
     }
   }, 1000);
 }
 
-function updateTimerDisplay() {
-  document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
+function submitAnswer() {
+  const answer = document.getElementById("answer").value.trim().toLowerCase();
+  const correct = questions[currentQuestion].answer.trim().toLowerCase();
+
+  if (answer === correct) {
+    score++;
+    currentQuestion++;
+    if (currentQuestion >= questions.length) {
+      alert("Quiz complete!");
+      window.location.href = "index.html";
+    } else {
+      showQuestion();
+      startTimer();
+    }
+  } else {
+    wrongAnswer();
+  }
+}
+
+function wrongAnswer() {
+  alert("Incorrect. Restarting quiz...");
+  window.location.href = "quiz.html?mode=" + mode;
 }
 
 window.onload = loadQuestions;
